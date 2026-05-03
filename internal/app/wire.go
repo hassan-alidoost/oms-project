@@ -10,6 +10,8 @@ import (
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres"
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres/repository"
 	"github.com/hassan-alidoost/oms-project/internal/services"
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "github.com/hassan-alidoost/oms-project/docs"
 )
 
 
@@ -30,6 +32,8 @@ func Initialize(cfg *config.Config) {
 
 	mux := http.NewServeMux()
 	orderHandler.RegisterRoutes(mux)
+
+	mux.Handle("GET /swagger/", httpSwagger.WrapHandler)
 
 	log.Println("OMS API starting on :8080")
     http.ListenAndServe(":8080", mux)

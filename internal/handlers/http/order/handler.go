@@ -23,6 +23,16 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /orders/{id}", h.GetOrder)
 }
 
+// CreateOrder handles the creation of a new order
+// @Summary Create a new order
+// @Description Creates an order with a random customer ID and specific price
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order body CreateOrderRequest true "Order Details"
+// @Success 201 {object} entities.Order
+// @Failure 400 {string} string "Invalid request"
+// @Router /orders [post]
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var req CreateOrderRequest
 
@@ -42,6 +52,15 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
+// GetOrder retrieves an order by ID
+// @Summary Get an order
+// @Description Returns a single order by its uint64 ID
+// @Tags orders
+// @Produce json
+// @Param id path uint64 true "Order ID"
+// @Success 200 {object} entities.Order
+// @Failure 404 {string} string "Order not found"
+// @Router /orders/{id} [get]
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 3 {

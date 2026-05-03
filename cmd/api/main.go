@@ -9,6 +9,11 @@ import (
 
 const configPath string = "./../../config"
 
+// @title OMS API
+// @version 1.0
+// @description Order Management System with Hexagonal Architecture.
+// @host localhost:8080
+// @BasePath /
 func main() {
 	cfg, err := config.LoadConfig(configPath)
 
