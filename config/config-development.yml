@@ -1,0 +1,14 @@
+app:
+  port: 8000
+  env: develop
+  dbConnection: postgres
+database:
+  host: "localhost"
+  port: 5432
+  dbName: "oms"
+  user: "root"
+  password: "admin"
+  sslMode: "disable"
+  maxIdleConns: 15
+  maxOpenConns: 100
+  connMaxLifeTime: 5

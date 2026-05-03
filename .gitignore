@@ -1,4 +1,7 @@
 *.exe
 *.log
 .idea
-internal/config/config.yml
+config/config.yml
+vendor
+*.env
+.vscode
