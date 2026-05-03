@@ -5,16 +5,19 @@ import (
 	"log"
 
 	"github.com/hassan-alidoost/oms-project/config"
+	"github.com/hassan-alidoost/oms-project/internal/infra/postgres"
 )
 
-const configPath string = "./../../config"
 
-func Initialize() {
-	cfg, err := config.LoadConfig(configPath)
+func Initialize(cfg *config.Config) {
+	fmt.Printf("start running app in %s enviorment", cfg.App.Env)
+	
+	db, cleanup, err := postgres.NewPostgresDB(cfg.Database)
 
 	if err != nil {
-		log.Fatalf("could not load the config %v", err)
-	}
+        log.Fatalf("could not set up database: %v", err)
+    }
 
-	fmt.Printf("start running app in %s enviorment", cfg.App.Env)
+	defer cleanup()
+
 }
