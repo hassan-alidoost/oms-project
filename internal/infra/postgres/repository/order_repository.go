@@ -30,7 +30,7 @@ func (r *orderRepository) Create(ctx context.Context, order *entities.Order) err
 }
 
 func (r *orderRepository) FindByID(ctx context.Context, id entities.EntityId) (*entities.Order, error) {
-	var model models.OrderModel
+	var model models.Order
 
 	err := r.db.WithContext(ctx).First(&model, id).Error
 	if err != nil {
