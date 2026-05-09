@@ -6,15 +6,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hassan-alidoost/oms-project/internal/domain/entities"
-	"github.com/hassan-alidoost/oms-project/internal/services"
+	"github.com/hassan-alidoost/oms-project/internal/domain"
+	"github.com/hassan-alidoost/oms-project/internal/ports"
 )
 
 type OrderHandler struct {
-	service *services.OrderService
+	service ports.OrderService
 }
 
-func NewOrderHandler(service *services.OrderService) *OrderHandler {
+func NewOrderHandler(service ports.OrderService) *OrderHandler {
 	return &OrderHandler{service: service}
 }
 
@@ -41,7 +41,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.service.PlaceOrder(r.Context(), entities.EntityId(req.UserID), entities.Price(req.Price))
+	err := h.service.Create(r.Context(), domain.EntityId(req.UserID), domain.Price(req.Price))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -74,7 +74,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.service.FindByID(r.Context(), entities.EntityId(id))
+	order, err := h.service.FindByID(r.Context(), domain.EntityId(id))
 	if err != nil {
 		http.Error(w, "Order not found", http.StatusNotFound)
 		return

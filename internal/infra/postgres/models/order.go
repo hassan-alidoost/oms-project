@@ -1,6 +1,7 @@
 package models
 
-import "github.com/hassan-alidoost/oms-project/internal/domain/entities"
+import "github.com/hassan-alidoost/oms-project/internal/domain"
+
 
 type Order struct {
 	BaseModel
@@ -10,7 +11,7 @@ type Order struct {
 	TotalPrice Price    `gorm:"type:bigint;not null"`
 }
 
-func FromDomain(d *entities.Order) *Order {
+func FromDomain(d *domain.Order) *Order {
 	return &Order{
 		UserID:     EntityId(d.UserID),
 		Status:     uint8(d.Status),
@@ -23,13 +24,13 @@ func FromDomain(d *entities.Order) *Order {
 	}
 }
 
-func (m *Order) ToDomain() *entities.Order {
-	return &entities.Order{
-		UserID:     entities.EntityId(m.UserID),
-		Status:     entities.OrderStatus(m.Status),
-		TotalPrice: entities.Price(m.TotalPrice),
-		BaseEntity: entities.BaseEntity{
-			ID:        entities.EntityId(m.ID),
+func (m *Order) ToDomain() *domain.Order {
+	return &domain.Order{
+		UserID:     domain.EntityId(m.UserID),
+		Status:     domain.OrderStatus(m.Status),
+		TotalPrice: domain.Price(m.TotalPrice),
+		BaseEntity: domain.BaseEntity{
+			ID:        domain.EntityId(m.ID),
 			CreatedAt: m.CreatedAt,
 			UpdatedAt: m.UpdatedAt,
 		},

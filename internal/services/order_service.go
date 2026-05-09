@@ -5,24 +5,24 @@ import (
 	"errors"
 	"time"
 
-	"github.com/hassan-alidoost/oms-project/internal/domain/entities"
-	"github.com/hassan-alidoost/oms-project/internal/ports/outbound"
+	"github.com/hassan-alidoost/oms-project/internal/domain"
+	"github.com/hassan-alidoost/oms-project/internal/ports"
 )
 
 type OrderService struct {
-	repo outbound.OrderRepository
+	repo ports.OrderRepository
 }
 
-func NewOrderService(repo outbound.OrderRepository) *OrderService {
+func NewOrderService(repo ports.OrderRepository) *OrderService {
 	return &OrderService{repo: repo}
 }
 
-func (s *OrderService) PlaceOrder(ctx context.Context, userID entities.EntityId, price entities.Price) (*entities.Order, error) {
-    newOrder := &entities.Order{
+func (s *OrderService) Create(ctx context.Context, userID domain.EntityId, price domain.Price) (*domain.Order, error) {
+    newOrder := &domain.Order{
         UserID: userID,
         TotalPrice: price,
-        Status:     entities.Pending,
-		BaseEntity: entities.BaseEntity{
+        Status:     domain.Pending,
+		BaseEntity: domain.BaseEntity{
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		},
@@ -35,7 +35,7 @@ func (s *OrderService) PlaceOrder(ctx context.Context, userID entities.EntityId,
     return newOrder, nil
 }
 
-func (s *OrderService) FindByID(ctx context.Context, id entities.EntityId) (*entities.Order, error) {
+func (s *OrderService) FindByID(ctx context.Context, id domain.EntityId) (*domain.Order, error) {
 	order, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
