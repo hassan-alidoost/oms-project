@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 type orderRepository struct {
 	db *gorm.DB
 }
@@ -22,14 +21,14 @@ func NewOrderRepository(db *gorm.DB) ports.OrderRepository {
 func (r *orderRepository) Create(ctx context.Context, order *domain.Order) error {
 	model := models.FromDomain(order)
 
-	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+	if err := r.db.Create(model).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *orderRepository) FindByID(ctx context.Context, id domain.EntityId) (*domain.Order, error) {
+func (r *orderRepository) FindByID(ctx context.Context, id domain.ID) (*domain.Order, error) {
 	var model models.Order
 
 	err := r.db.WithContext(ctx).First(&model, id).Error

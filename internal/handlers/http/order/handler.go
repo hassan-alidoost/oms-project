@@ -18,11 +18,6 @@ func NewOrderHandler(service ports.OrderService) *OrderHandler {
 	return &OrderHandler{service: service}
 }
 
-func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /orders", h.CreateOrder)
-	mux.HandleFunc("GET /orders/{id}", h.GetOrder)
-}
-
 // CreateOrder handles the creation of a new order
 // @Summary Create a new order
 // @Description Creates an order with a random customer ID and specific price
@@ -34,14 +29,20 @@ func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux) {
 // @Failure 400 {string} string "Invalid request"
 // @Router /orders [post]
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	var req CreateOrderRequest
+	var orderDto CreateOrderRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&orderDto); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	err := h.service.Create(r.Context(), domain.EntityId(req.UserID), domain.Price(req.Price))
+	items := make([]domain.OrderItem, 0, len(orderDto.Items))
+	for _, item := range orderDto.Items {
+		items = append(items, domain.NewOrderItem(item.ProductID, item.Quantity, item.Price))
+	}
+
+
+	err := h.service.Create(r.Context(), items)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,7 +50,6 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(order)
 }
 
 // GetOrder retrieves an order by ID
@@ -74,7 +74,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.service.FindByID(r.Context(), domain.EntityId(id))
+	order, err := h.service.FindByID(r.Context(), domain.ID(id))
 	if err != nil {
 		http.Error(w, "Order not found", http.StatusNotFound)
 		return

@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/hassan-alidoost/oms-project/config"
+	_ "github.com/hassan-alidoost/oms-project/docs"
+	appHttp "github.com/hassan-alidoost/oms-project/internal/handlers/http"
 	orderHandler "github.com/hassan-alidoost/oms-project/internal/handlers/http/order"
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres"
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres/repository"
 	"github.com/hassan-alidoost/oms-project/internal/services"
-	httpSwagger "github.com/swaggo/http-swagger"
-	_ "github.com/hassan-alidoost/oms-project/docs"
 )
 
 const configPath string = "./../../config"
@@ -39,11 +39,10 @@ func Initialize() {
 	orderService := services.NewOrderService(orderRepository)
 	orderHandler := orderHandler.NewOrderHandler(orderService)
 	
-	mux := http.NewServeMux()
-	orderHandler.RegisterRoutes(mux)
-
-	mux.Handle("GET /swagger/", httpSwagger.WrapHandler)
+	router := appHttp.NewRouter(appHttp.Handlers{
+		OrderHandle: orderHandler,
+	})
 
 	log.Println("OMS API starting on :8080")
-    http.ListenAndServe(":8080", mux)
+    http.ListenAndServe(":8080", router)
 }
