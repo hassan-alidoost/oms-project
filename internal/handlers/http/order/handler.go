@@ -25,7 +25,7 @@ func NewOrderHandler(service ports.OrderService) *OrderHandler {
 // @Accept json
 // @Produce json
 // @Param order body CreateOrderRequest true "Order Details"
-// @Success 201 {object} entities.Order
+// @Success 201 {object} domain.Order
 // @Failure 400 {string} string "Invalid request"
 // @Router /orders [post]
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +58,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 // @Tags orders
 // @Produce json
 // @Param id path uint64 true "Order ID"
-// @Success 200 {object} entities.Order
+// @Success 200 {object} domain.Order
 // @Failure 404 {string} string "Order not found"
 // @Router /orders/{id} [get]
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {

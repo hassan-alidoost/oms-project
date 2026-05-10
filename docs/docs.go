@@ -43,7 +43,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entities.Order"
+                            "$ref": "#/definitions/domain.Order"
                         }
                     },
                     "400": {
@@ -79,7 +79,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.Order"
+                            "$ref": "#/definitions/domain.Order"
                         }
                     },
                     "404": {
@@ -93,7 +93,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.Order": {
+        "domain.Order": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -109,11 +109,11 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entities.OrderItem"
+                        "$ref": "#/definitions/domain.OrderItem"
                     }
                 },
                 "status": {
-                    "$ref": "#/definitions/entities.OrderStatus"
+                    "$ref": "#/definitions/domain.OrderStatus"
                 },
                 "totalPrice": {
                     "type": "integer",
@@ -121,14 +121,10 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
-                },
-                "userID": {
-                    "type": "integer",
-                    "format": "int64"
                 }
             }
         },
-        "entities.OrderItem": {
+        "domain.OrderItem": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -145,6 +141,13 @@ const docTemplate = `{
                     "type": "integer",
                     "format": "int64"
                 },
+                "product": {
+                    "$ref": "#/definitions/domain.Product"
+                },
+                "productID": {
+                    "type": "integer",
+                    "format": "int64"
+                },
                 "quantity": {
                     "type": "integer",
                     "format": "int32"
@@ -154,7 +157,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.OrderStatus": {
+        "domain.OrderStatus": {
             "type": "integer",
             "format": "int32",
             "enum": [
@@ -170,17 +173,65 @@ const docTemplate = `{
                 "Cancelled"
             ]
         },
+        "domain.Product": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "stock": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "order.CreateOrderRequest": {
             "type": "object",
             "required": [
-                "customer_id",
-                "price"
+                "items"
             ],
             "properties": {
-                "customer_id": {
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/order.OrderItemRequest"
+                    }
+                }
+            }
+        },
+        "order.OrderItemRequest": {
+            "type": "object",
+            "required": [
+                "price",
+                "product_id",
+                "quantity"
+            ],
+            "properties": {
+                "price": {
                     "type": "integer"
                 },
-                "price": {
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
                     "type": "integer"
                 }
             }

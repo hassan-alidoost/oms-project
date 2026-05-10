@@ -19,7 +19,7 @@ func NewOrderRepository(db *gorm.DB) ports.OrderRepository {
 }
 
 func (r *orderRepository) Create(ctx context.Context, order *domain.Order) error {
-	model := models.FromDomain(order)
+	model := models.ToModel(order)
 
 	if err := r.db.Create(model).Error; err != nil {
 		return err
@@ -39,5 +39,5 @@ func (r *orderRepository) FindByID(ctx context.Context, id domain.ID) (*domain.O
 		return nil, err
 	}
 
-	return model.ToDomain(), nil
+	return models.ToDomain(&model), nil
 }

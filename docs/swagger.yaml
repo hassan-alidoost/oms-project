@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  entities.Order:
+  domain.Order:
     properties:
       createdAt:
         type: string
@@ -11,20 +11,17 @@ definitions:
         type: integer
       items:
         items:
-          $ref: '#/definitions/entities.OrderItem'
+          $ref: '#/definitions/domain.OrderItem'
         type: array
       status:
-        $ref: '#/definitions/entities.OrderStatus'
+        $ref: '#/definitions/domain.OrderStatus'
       totalPrice:
         format: int64
         type: integer
       updatedAt:
         type: string
-      userID:
-        format: int64
-        type: integer
     type: object
-  entities.OrderItem:
+  domain.OrderItem:
     properties:
       createdAt:
         type: string
@@ -36,13 +33,18 @@ definitions:
       price:
         format: int64
         type: integer
+      product:
+        $ref: '#/definitions/domain.Product'
+      productID:
+        format: int64
+        type: integer
       quantity:
         format: int32
         type: integer
       updatedAt:
         type: string
     type: object
-  entities.OrderStatus:
+  domain.OrderStatus:
     enum:
     - 0
     - 1
@@ -55,15 +57,48 @@ definitions:
     - Paid
     - Shipped
     - Cancelled
+  domain.Product:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        format: int64
+        type: integer
+      name:
+        type: string
+      price:
+        format: int64
+        type: integer
+      stock:
+        format: int32
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   order.CreateOrderRequest:
     properties:
-      customer_id:
-        type: integer
+      items:
+        items:
+          $ref: '#/definitions/order.OrderItemRequest'
+        minItems: 1
+        type: array
+    required:
+    - items
+    type: object
+  order.OrderItemRequest:
+    properties:
       price:
         type: integer
+      product_id:
+        type: integer
+      quantity:
+        type: integer
     required:
-    - customer_id
     - price
+    - product_id
+    - quantity
     type: object
 host: localhost:8080
 info:
@@ -90,7 +125,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/entities.Order'
+            $ref: '#/definitions/domain.Order'
         "400":
           description: Invalid request
           schema:
@@ -114,7 +149,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entities.Order'
+            $ref: '#/definitions/domain.Order'
         "404":
           description: Order not found
           schema:

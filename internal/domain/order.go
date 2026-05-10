@@ -21,35 +21,36 @@ const (
 
 type OrderItem struct {
 	Base
-	ProductId ID
-	Quantity uint8
-	Price    Price
+	ProductID ID
+	Product   *Product
+	Quantity  uint8
+	Price     Price
 }
 
 func NewOrderItem(productID ID, qty uint8, price Price) OrderItem {
-    return OrderItem{
-        Base: Base{
-            CreatedAt: time.Now(),
-            UpdatedAt: time.Now(),
-        },
-        ProductId: productID,
-        Quantity:  qty,
-        Price:     price,
-    }
+	return OrderItem{
+		Base: Base{
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		ProductID: productID,
+		Quantity:  qty,
+		Price:     price,
+	}
 }
 
 func NewOrder(items []OrderItem) *Order {
-    order := &Order{
-        Base: Base{
-            CreatedAt: time.Now(),
-            UpdatedAt: time.Now(),
-        },
-        Status:     Pending,
-        Items:      items,
-    }
-    
-    order.CalculateTotal()
-    return order
+	order := &Order{
+		Base: Base{
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		Status: Pending,
+		Items:  items,
+	}
+
+	order.CalculateTotal()
+	return order
 }
 
 func (o *Order) CalculateTotal() {
