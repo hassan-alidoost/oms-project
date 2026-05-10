@@ -83,3 +83,17 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(order)
 }
+
+func (h *OrderHandler) GetOrders(w http.ResponseWriter, r *http.Request) {
+    orders, err := h.service.GetOrders(r.Context())
+
+    if err != nil {
+        http.Error(w, "failed to fetch orders", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    if err := json.NewEncoder(w).Encode(orders); err != nil {
+        http.Error(w, "failed to encode response", http.StatusInternalServerError)
+    }
+}

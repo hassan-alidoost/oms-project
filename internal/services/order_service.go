@@ -36,3 +36,7 @@ func (s *OrderService) FindByID(ctx context.Context, id domain.ID) (*domain.Orde
 	}
 	return order, nil
 }
+
+func (s *OrderService) GetOrders(ctx context.Context) ([]*domain.Order, error) {
+    return s.repo.GetOrders(ctx)
+}

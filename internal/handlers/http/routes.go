@@ -8,7 +8,7 @@ import (
 )
 
 type Handlers struct {
-	OrderHandle *order.OrderHandler
+	OrderHandler *order.OrderHandler
 }
 
 func NewRouter(h Handlers) *http.ServeMux {
@@ -18,8 +18,9 @@ func NewRouter(h Handlers) *http.ServeMux {
 	mux.Handle("GET /swagger/", httpSwagger.WrapHandler)
 
 	//order
-	mux.HandleFunc("POST /orders", h.OrderHandle.CreateOrder)
-	mux.HandleFunc("GET /orders/{id}", h.OrderHandle.GetOrder)
+	mux.HandleFunc("POST /orders", h.OrderHandler.CreateOrder)
+	mux.HandleFunc("GET /orders", h.OrderHandler.CreateOrder)
+	mux.HandleFunc("GET /orders/{id}", h.OrderHandler.GetOrder)
 
 	return mux
 }

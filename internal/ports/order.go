@@ -9,9 +9,11 @@ import (
 type OrderRepository interface {
     Create(ctx context.Context, order *domain.Order) error
 	FindByID(ctx context.Context, id domain.ID) (*domain.Order, error)
+	GetOrders(ctx context.Context) ([]*domain.Order, error)
 }
 
 type OrderService interface {
 	Create(ctx context.Context, items []domain.OrderItem) error
 	FindByID(ctx context.Context, id domain.ID) (*domain.Order, error)
+	GetOrders(ctx context.Context) ([]*domain.Order, error)
 }

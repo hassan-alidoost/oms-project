@@ -41,3 +41,20 @@ func (r *orderRepository) FindByID(ctx context.Context, id domain.ID) (*domain.O
 
 	return models.ToDomain(&model), nil
 }
+
+func (r *orderRepository) GetOrders(ctx context.Context) ([]*domain.Order, error) {
+    var mOrders []models.Order
+    
+    err := r.db.WithContext(ctx).Preload("Items").Preload("Items.Product").Find(&mOrders).Error
+
+    if err != nil {
+        return nil, err
+    }
+
+    var dOrders []*domain.Order
+    for _, m := range mOrders {
+        dOrders = append(dOrders, models.ToDomain(&m))
+    }
+
+    return dOrders, nil
+}
