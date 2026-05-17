@@ -1,99 +1,84 @@
 package order
 
 import (
-	"encoding/json"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/hassan-alidoost/oms-project/internal/domain"
-	"github.com/hassan-alidoost/oms-project/internal/ports"
+	"github.com/hassan-alidoost/oms-project/internal/services"
 )
 
 type OrderHandler struct {
-	service ports.OrderService
+	svc *services.OrderService
 }
 
-func NewOrderHandler(service ports.OrderService) *OrderHandler {
-	return &OrderHandler{service: service}
+func NewOrderHandler(svc *services.OrderService) *OrderHandler {
+	return &OrderHandler{svc: svc}
 }
 
-// CreateOrder handles the creation of a new order
-// @Summary Create a new order
-// @Description Creates an order with a random customer ID and specific price
-// @Tags orders
-// @Accept json
-// @Produce json
-// @Param order body CreateOrderRequest true "Order Details"
-// @Success 201 {object} domain.Order
-// @Failure 400 {string} string "Invalid request"
-// @Router /orders [post]
+// createOrder handles POST /orders.
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	var orderDto CreateOrderRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&orderDto); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	var dto CreateDTO
+	if err := decode(r, &dto); err != nil {
+		respond(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
 		return
 	}
-
-	items := make([]domain.OrderItem, 0, len(orderDto.Items))
-	for _, item := range orderDto.Items {
-		items = append(items, domain.NewOrderItem(item.ProductID, item.Quantity, item.Price))
-	}
-
-
-	err := h.service.Create(r.Context(), items)
+	result, err := h.svc.Create(r.Context(), dto)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondError(w, err)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	respond(w, http.StatusCreated, result)
 }
 
-// GetOrder retrieves an order by ID
-// @Summary Get an order
-// @Description Returns a single order by its uint64 ID
-// @Tags orders
-// @Produce json
-// @Param id path uint64 true "Order ID"
-// @Success 200 {object} domain.Order
-// @Failure 404 {string} string "Order not found"
-// @Router /orders/{id} [get]
+// listOrders handles GET /orders.
+func (h *OrderHandler) ListOrders(w http.ResponseWriter, r *http.Request) {
+	results, err := h.svc.GetAll(r.Context())
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	respond(w, http.StatusOK, results)
+}
+
+// getOrder handles GET /orders/{id}.
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 3 {
-		http.Error(w, "ID required", http.StatusBadRequest)
+	rest := strings.TrimPrefix(r.URL.Path, "/orders/")
+	if rest == "" {
+		respond(w, http.StatusBadRequest, map[string]string{"error": "missing order id"})
 		return
 	}
 
-	id, err := strconv.ParseUint(parts[2], 10, 64)
+	parts := strings.SplitN(rest, "/", 2)
+	id := parts[0]
+
+	result, err := h.svc.GetByID(r.Context(), id)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		respondError(w, err)
 		return
 	}
-
-	order, err := h.service.FindByID(r.Context(), domain.ID(id))
-	if err != nil {
-		http.Error(w, "Order not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(order)
+	respond(w, http.StatusOK, result)
 }
 
-func (h *OrderHandler) GetOrders(w http.ResponseWriter, r *http.Request) {
-    orders, err := h.service.GetOrders(r.Context())
+// updateStatus handles PUT /orders/{id}/status.
+func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
+	rest := strings.TrimPrefix(r.URL.Path, "/orders/")
+	if rest == "" {
+		respond(w, http.StatusBadRequest, map[string]string{"error": "missing order id"})
+		return
+	}
 
-    if err != nil {
-        http.Error(w, "failed to fetch orders", http.StatusInternalServerError)
-        return
-    }
+	parts := strings.SplitN(rest, "/", 2)
+	id := parts[0]
 
-    w.Header().Set("Content-Type", "application/json")
-    if err := json.NewEncoder(w).Encode(orders); err != nil {
-        http.Error(w, "failed to encode response", http.StatusInternalServerError)
-    }
+	var dto UpdateStatusDTO
+	if err := decode(r, &dto); err != nil {
+		respond(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		return
+	}
+	result, err := h.svc.UpdateStatus(r.Context(), id, dto)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	respond(w, http.StatusOK, result)
 }

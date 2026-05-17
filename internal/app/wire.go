@@ -8,7 +8,7 @@ import (
 	"github.com/hassan-alidoost/oms-project/config"
 	_ "github.com/hassan-alidoost/oms-project/docs"
 	appHttp "github.com/hassan-alidoost/oms-project/internal/handlers/http"
-	orderHandler "github.com/hassan-alidoost/oms-project/internal/handlers/http/order"
+	"github.com/hassan-alidoost/oms-project/internal/handlers/http/order"
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres"
 	"github.com/hassan-alidoost/oms-project/internal/infra/postgres/repository"
 	"github.com/hassan-alidoost/oms-project/internal/services"
@@ -34,9 +34,11 @@ func Initialize() {
 
 	defer cleanup()
 
-	orderRepository := repository.NewOrderRepository(db)
-	orderService := services.NewOrderService(orderRepository)
-	orderHandler := orderHandler.NewOrderHandler(orderService)
+	productRepo := repository.NewProductRepository(db)
+	orderRepo := repository.NewOrderRepository(db)
+
+	orderSvc := services.NewOrderService(orderRepo, productRepo)
+	orderHandler := order.NewOrderHandler(orderSvc)
 
 	router := appHttp.NewRouter(appHttp.Handlers{
 		OrderHandler: orderHandler,
